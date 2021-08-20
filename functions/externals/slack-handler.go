@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"weekend.side/dialogFlowSlackSdk/functions/config"
+	"weekend.side/dialogFlowSlackSdk/functions/utils"
 )
 
 type SlackRequest struct {
@@ -126,14 +127,14 @@ func (slackReq *SlackRequest) HandleSlackCallbackEvent() (interface{}, error) {
 	case *slackevents.AppMentionEvent:
 		isBot = ev.BotID
 		dialogflowcxReq = DialogFlowCXRequest{
-			userInput:       ev.Text,
+			userInput:       utils.ParseTextFromInput(ev.Text),
 			sessionId:       ev.User,
 			credentialsPath: slackReq.credentials,
 		}
 	case *slackevents.MessageEvent:
 		isBot = ev.BotID
 		dialogflowcxReq = DialogFlowCXRequest{
-			userInput:       ev.Text,
+			userInput:       utils.ParseTextFromInput(ev.Text),
 			sessionId:       ev.User,
 			credentialsPath: slackReq.credentials,
 		}

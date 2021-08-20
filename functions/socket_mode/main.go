@@ -13,7 +13,6 @@ import (
 	"weekend.side/dialogFlowSlackSdk/functions/externals"
 )
 
-
 func main() {
 	botToken := config.BOT_TOKEN
 	appToken := config.APP_TOKEN
@@ -53,7 +52,7 @@ func main() {
 
 				switch eventsAPIEvent.Type {
 				case slackevents.CallbackEvent:
-					slackReq := externals.NewSlackRequest(nil, "dialogflowcx.json")
+					slackReq := externals.NewSlackRequest(nil, "config/dialogflowcx.json")
 					slackReq.EventsAPIEvent = &eventsAPIEvent
 
 					respChat, slackEventCallbackErr := slackReq.HandleSlackCallbackEvent()
