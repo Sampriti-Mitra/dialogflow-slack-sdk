@@ -16,3 +16,5 @@ manual_scaling:
 
 network:
   session_affinity: true
+
+main: ./socket_mode

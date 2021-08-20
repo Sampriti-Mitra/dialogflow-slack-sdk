@@ -102,12 +102,14 @@ func (slackReq *SlackRequest) PostMsgToSlack(innerEvent slackevents.EventsAPIInn
 
 	var api = slack.New(config.BOT_TOKEN) // can be moved to SlackRequest
 
+	responseStr:=utils.ParseStringFromResponse(responseMessages)
+
 	switch ev := innerEvent.Data.(type) {
 	case *slackevents.AppMentionEvent:
 		if ev.ThreadTimeStamp == "" {
-			api.PostMessage(ev.Channel, slack.MsgOptionTS(ev.TimeStamp), slack.MsgOptionText(responseMessages[0].String(), true))
+			api.PostMessage(ev.Channel, slack.MsgOptionTS(ev.TimeStamp), slack.MsgOptionText(responseStr, true))
 		} else {
-			api.PostMessage(ev.Channel, slack.MsgOptionTS(ev.ThreadTimeStamp), slack.MsgOptionText(responseMessages[0].String(), true))
+			api.PostMessage(ev.Channel, slack.MsgOptionTS(ev.ThreadTimeStamp), slack.MsgOptionText(responseStr, true))
 		}
 	case *slackevents.MessageEvent:
 		api.PostMessage(ev.Channel, slack.MsgOptionText(responseMessages[0].String(), true))

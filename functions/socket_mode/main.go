@@ -39,6 +39,8 @@ func main() {
 				fmt.Println("Connection failed. Retrying later...")
 			case socketmode.EventTypeConnected:
 				fmt.Println("Connected to Slack with Socket Mode.")
+			case socketmode.EventTypeHello:
+				fmt.Println("Connected to Slack with Socket Mode.")
 			case socketmode.EventTypeEventsAPI:
 				eventsAPIEvent, ok := evt.Data.(slackevents.EventsAPIEvent)
 				if !ok {
@@ -52,7 +54,7 @@ func main() {
 
 				switch eventsAPIEvent.Type {
 				case slackevents.CallbackEvent:
-					slackReq := externals.NewSlackRequest(nil, "config/dialogflowcx.json")
+					slackReq := externals.NewSlackRequest(nil, "./config/dialogflowcx.json")
 					slackReq.EventsAPIEvent = &eventsAPIEvent
 
 					respChat, slackEventCallbackErr := slackReq.HandleSlackCallbackEvent()
