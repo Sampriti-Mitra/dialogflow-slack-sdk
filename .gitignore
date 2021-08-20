@@ -1,0 +1,12 @@
+token.json
+go.mod
+go.sum
+functions/dialogflowcx.json
+functions/go.mod
+functions/go.sum
+**/config
+config/dialogflowcx.json
+config/token.go
+ **/token.go
+ **/dialogflowcx.json
+
