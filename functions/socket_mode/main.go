@@ -52,7 +52,7 @@ func main() {
 
 				switch eventsAPIEvent.Type {
 				case slackevents.CallbackEvent:
-					slackReq := externals.NewSlackRequest(nil, "../config/dialogflowcx.json")
+					slackReq := externals.NewSlackRequest(nil, "config/dialogflowcx.json")
 					slackReq.EventsAPIEvent = &eventsAPIEvent
 
 					respChat, slackEventCallbackErr := slackReq.HandleSlackCallbackEvent()
