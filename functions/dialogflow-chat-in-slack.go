@@ -12,9 +12,13 @@ func SimplestBotFunction(w http.ResponseWriter, r *http.Request) {
 
 	signingSecret := config.SLACK_SIGNING_SECRET
 
-	slackReq := externals.NewSlackRequest(r, "./serverless_function_source_code/config/dialogflowcx.json")
+	verifySecret := config.VERIFY_SECRET
 
-	body, statusCode, err := slackReq.VerifyAndParseIncomingSlackRequests(signingSecret)
+	credentialsPath := config.CREDENTIALS_PATH
+
+	slackReq := externals.NewSlackRequest(r, credentialsPath)
+
+	body, statusCode, err := slackReq.VerifyAndParseIncomingSlackRequests(signingSecret, verifySecret)
 
 	if err != nil {
 		w.WriteHeader(statusCode)
@@ -37,6 +41,6 @@ func SimplestBotFunction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprint(w, resp)
+	fmt.Fprint(w, string(resp))
 
 }
