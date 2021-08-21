@@ -57,9 +57,6 @@ func main() {
 
 					respChat, slackEventCallbackErr := slackReq.HandleSlackCallbackEvent()
 
-					fmt.Print("response of dgcx is here", respChat)
-					log.Print("response of dgcx is here", respChat)
-
 					if slackEventCallbackErr != nil {
 						log.Print(slackEventCallbackErr)
 						statusCode := http.StatusInternalServerError

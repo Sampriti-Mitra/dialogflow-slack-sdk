@@ -3,7 +3,6 @@ package externals
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"google.golang.org/genproto/googleapis/cloud/dialogflow/cx/v3"
@@ -104,9 +103,6 @@ func (slackReq *SlackRequest) PostMsgToSlack(innerEvent slackevents.EventsAPIInn
 	var api = slack.New(config.BOT_TOKEN) // can be moved to SlackRequest
 
 	responseStr:=utils.ParseStringFromResponse(responseMessages)
-
-	fmt.Print("this is after parsing: ", responseStr)
-	log.Print("this is after parsing: ", responseStr)
 
 	switch ev := innerEvent.Data.(type) {
 	case *slackevents.AppMentionEvent:
