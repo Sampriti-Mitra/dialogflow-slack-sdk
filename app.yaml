@@ -1,5 +1,4 @@
-runtime: go115  # or another supported version
-env: standard
+runtime: go116  # or another supported version
 
 #runtime: custom  # or another supported version
 #env: flex
@@ -16,3 +15,6 @@ manual_scaling:
 
 network:
   session_affinity: true
+
+#when using socket mode, uncomment the below line
+#main: ./functions/socket_mode

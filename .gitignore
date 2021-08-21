@@ -1,6 +1,4 @@
 token.json
-go.mod
-go.sum
 functions/dialogflowcx.json
 functions/go.mod
 functions/go.sum

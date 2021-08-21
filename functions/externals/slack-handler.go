@@ -23,11 +23,15 @@ func NewSlackRequest(req *http.Request, credentialsPath string) SlackRequest {
 	return SlackRequest{req, nil, credentialsPath}
 }
 
-func (slackReq SlackRequest) VerifyAndParseIncomingSlackRequests(signingSecret string) (respBody []byte, statusCode int, err error) {
+func (slackReq SlackRequest) VerifyAndParseIncomingSlackRequests(signingSecret string, verifySecret bool) (respBody []byte, statusCode int, err error) {
 	body, err := ioutil.ReadAll(slackReq.Body)
 	if err != nil {
 		statusCode = http.StatusBadRequest
 		return
+	}
+
+	if !verifySecret { // in case of url verification, secret header is not passed
+		return body, 200, nil
 	}
 
 	sv, err := slack.NewSecretsVerifier(slackReq.Header, signingSecret)
@@ -68,7 +72,6 @@ func (slackReq *SlackRequest) HandleSlackRequests(body []byte) ([]byte, int, err
 		r, slackUrlErr := slackReq.HandleSlackURLVerificationkEvent(body)
 
 		if slackUrlErr != nil {
-			//log.Print(slackUrlErr)
 			statusCode := http.StatusInternalServerError
 			return nil, statusCode, slackUrlErr
 		}
@@ -102,15 +105,17 @@ func (slackReq *SlackRequest) PostMsgToSlack(innerEvent slackevents.EventsAPIInn
 
 	var api = slack.New(config.BOT_TOKEN) // can be moved to SlackRequest
 
+	responseStr := utils.ParseStringFromResponse(responseMessages)
+
 	switch ev := innerEvent.Data.(type) {
 	case *slackevents.AppMentionEvent:
 		if ev.ThreadTimeStamp == "" {
-			api.PostMessage(ev.Channel, slack.MsgOptionTS(ev.TimeStamp), slack.MsgOptionText(responseMessages[0].String(), true))
+			api.PostMessage(ev.Channel, slack.MsgOptionTS(ev.TimeStamp), slack.MsgOptionText(responseStr, true))
 		} else {
-			api.PostMessage(ev.Channel, slack.MsgOptionTS(ev.ThreadTimeStamp), slack.MsgOptionText(responseMessages[0].String(), true))
+			api.PostMessage(ev.Channel, slack.MsgOptionTS(ev.ThreadTimeStamp), slack.MsgOptionText(responseStr, true))
 		}
 	case *slackevents.MessageEvent:
-		api.PostMessage(ev.Channel, slack.MsgOptionText(responseMessages[0].String(), true))
+		api.PostMessage(ev.Channel, slack.MsgOptionText(responseStr, true))
 	}
 	return nil
 }
