@@ -24,7 +24,6 @@ func NewSlackRequest(req *http.Request, credentialsPath string) SlackRequest {
 }
 
 func (slackReq SlackRequest) VerifyAndParseIncomingSlackRequests(signingSecret string, verifySecret bool) (respBody []byte, statusCode int, err error) {
-
 	body, err := ioutil.ReadAll(slackReq.Body)
 	if err != nil {
 		statusCode = http.StatusBadRequest
