@@ -3,6 +3,7 @@ package externals
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"google.golang.org/genproto/googleapis/cloud/dialogflow/cx/v3"
@@ -104,6 +105,9 @@ func (slackReq *SlackRequest) PostMsgToSlack(innerEvent slackevents.EventsAPIInn
 
 	responseStr:=utils.ParseStringFromResponse(responseMessages)
 
+	fmt.Print("this is after parsing: ", responseStr)
+	log.Print("this is after parsing: ", responseStr)
+
 	switch ev := innerEvent.Data.(type) {
 	case *slackevents.AppMentionEvent:
 		if ev.ThreadTimeStamp == "" {
@@ -112,7 +116,7 @@ func (slackReq *SlackRequest) PostMsgToSlack(innerEvent slackevents.EventsAPIInn
 			api.PostMessage(ev.Channel, slack.MsgOptionTS(ev.ThreadTimeStamp), slack.MsgOptionText(responseStr, true))
 		}
 	case *slackevents.MessageEvent:
-		api.PostMessage(ev.Channel, slack.MsgOptionText(responseMessages[0].String(), true))
+		api.PostMessage(ev.Channel, slack.MsgOptionText(responseStr, true))
 	}
 	return nil
 }

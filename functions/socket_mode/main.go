@@ -48,16 +48,17 @@ func main() {
 					continue
 				}
 
-				fmt.Printf("Event received: %+v\n", eventsAPIEvent)
-
 				client.Ack(*evt.Request)
 
 				switch eventsAPIEvent.Type {
 				case slackevents.CallbackEvent:
-					slackReq := externals.NewSlackRequest(nil, "./config/dialogflowcx.json")
+					slackReq := externals.NewSlackRequest(nil, "config/dialogflowcx.json")
 					slackReq.EventsAPIEvent = &eventsAPIEvent
 
 					respChat, slackEventCallbackErr := slackReq.HandleSlackCallbackEvent()
+
+					fmt.Print("response of dgcx is here", respChat)
+					log.Print("response of dgcx is here", respChat)
 
 					if slackEventCallbackErr != nil {
 						log.Print(slackEventCallbackErr)
