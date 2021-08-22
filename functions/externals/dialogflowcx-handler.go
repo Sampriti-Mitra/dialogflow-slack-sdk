@@ -16,7 +16,7 @@ type DialogFlowCXRequest struct {
 	sessionId       string
 }
 
-func (dialogflowcxReq DialogFlowCXRequest) GetDialogFlowCXResponse() (interface{}, error) {
+func (dialogflowcxReq DialogFlowCXRequest) GetDialogFlowCXResponse() ([]*cx.ResponseMessage, error) {
 
 	ProjectId := config.PROJECT_ID // project id
 
