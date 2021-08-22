@@ -5,7 +5,6 @@ import (
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
-	"google.golang.org/genproto/googleapis/cloud/dialogflow/cx/v3"
 	"log"
 	"net/http"
 	"os"
@@ -34,13 +33,13 @@ func main() {
 		for evt := range client.Events {
 			switch evt.Type {
 			case socketmode.EventTypeConnecting:
-				fmt.Println("Connecting to Slack with Socket Mode...")
+				continue
 			case socketmode.EventTypeConnectionError:
-				fmt.Println("Connection failed. Retrying later...")
+				continue
 			case socketmode.EventTypeConnected:
-				fmt.Println("Connected to Slack with Socket Mode.")
+				continue
 			case socketmode.EventTypeHello:
-				fmt.Println("Connected to Slack with Socket Mode.")
+				continue
 			case socketmode.EventTypeEventsAPI:
 				eventsAPIEvent, ok := evt.Data.(slackevents.EventsAPIEvent)
 				if !ok {
@@ -64,7 +63,7 @@ func main() {
 						continue
 					}
 
-					slackErr := slackReq.PostMsgToSlack(slackReq.EventsAPIEvent.InnerEvent, respChat.([]*cx.ResponseMessage))
+					slackErr := slackReq.PostMsgToSlack(&slackReq.EventsAPIEvent.InnerEvent, nil, respChat)
 
 					if slackErr != nil {
 						log.Print(slackErr)
@@ -75,6 +74,7 @@ func main() {
 				default:
 					client.Debugf("unsupported Events API event received")
 				}
+
 			case socketmode.EventTypeInteractive:
 				callback, ok := evt.Data.(slack.InteractionCallback)
 				if !ok {
@@ -82,16 +82,33 @@ func main() {
 
 					continue
 				}
-
-				fmt.Printf("Interaction received: %+v\n", callback)
+				client.Ack(*evt.Request)
 
 				var payload interface{}
 
 				switch callback.Type {
 				case slack.InteractionTypeBlockActions:
-					// See https://api.slack.com/apis/connections/socket-implement#button
 
-					client.Debugf("button clicked!")
+					slackReq := externals.NewSlackRequest(nil, config.CREDENTIALS_PATH)
+					slackReq.InteractionCallback = &callback
+
+					respChat, slackInteractionEventCallbackErr := slackReq.HandleSlackInteractionEvent()
+
+					if slackInteractionEventCallbackErr != nil {
+						log.Print(slackInteractionEventCallbackErr)
+						statusCode := http.StatusInternalServerError
+						fmt.Print(statusCode)
+						continue
+					}
+
+					slackErr := slackReq.PostMsgToSlack(nil, &callback, respChat)
+
+					if slackErr != nil {
+						log.Print(slackErr)
+						statusCode := http.StatusInternalServerError
+						fmt.Print(statusCode)
+						continue
+					}
 				case slack.InteractionTypeShortcut:
 				case slack.InteractionTypeViewSubmission:
 					// See https://api.slack.com/apis/connections/socket-implement#modal
@@ -101,38 +118,15 @@ func main() {
 				}
 
 				client.Ack(*evt.Request, payload)
+
 			case socketmode.EventTypeSlashCommand:
 				cmd, ok := evt.Data.(slack.SlashCommand)
 				if !ok {
 					fmt.Printf("Ignored %+v\n", evt)
-
 					continue
 				}
 
 				client.Debugf("Slash command received: %+v", cmd)
-
-				payload := map[string]interface{}{
-					"blocks": []slack.Block{
-						slack.NewSectionBlock(
-							&slack.TextBlockObject{
-								Type: slack.MarkdownType,
-								Text: "foo",
-							},
-							nil,
-							slack.NewAccessory(
-								slack.NewButtonBlockElement(
-									"",
-									"somevalue",
-									&slack.TextBlockObject{
-										Type: slack.PlainTextType,
-										Text: "bar",
-									},
-								),
-							),
-						),
-					}}
-
-				client.Ack(*evt.Request, payload)
 			default:
 				fmt.Fprintf(os.Stderr, "Unexpected event type received: %s\n", evt.Type)
 			}
@@ -141,12 +135,4 @@ func main() {
 
 	client.Run()
 
-}
-
-// handleWebsocket connection.
-func handleWebsocket(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 }

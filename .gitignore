@@ -8,4 +8,6 @@ functions/config/token.go
  **/token.go
  **/dialogflowcx.json
  functions/socket_mode/.gcloudignore
+ **/.gcloudignore
+ .gcloudignore
 
