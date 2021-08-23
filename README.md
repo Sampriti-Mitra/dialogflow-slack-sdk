@@ -6,6 +6,9 @@ If you don't already have a Dialogflow agent, you may create one by following th
 Although this integration deployment may be set up on any other hosting platform, these instructions will use Google's App Engine/Cloud functions.
 
 ## GCP Setup
+Step 1: Log in or Sign up for GCP
+Log in or sign up to google cloud console using a credit or debit card for a free trial. Create a project and enable billing for that project. Go to Cloud Functions and enable the API, also enable Cloud Build and Deploy.
+
 
 ### gcloud CLI setup
 
@@ -26,6 +29,28 @@ Follow the steps below to create a Service Account and set up the integration.
 4. Click on "+ Create Key" and download the resulting JSON key file.
 5. Save the JSON key file inside the functions/config directory of the cloned repo, else set the GOOGLE_APPLICATION_CREDENTIALS environmental variable on the deployment environment to the absolute path of Service Account JSON key file.
    See [this guide](https://cloud.google.com/dialogflow/docs/quick/setup#auth) for details.
+   
+### Setup Slack
+
+The integration requires slack credentials from the slack api to function properly.
+
+Follow the steps to obtain the credentials and setup the config/token.go file to deploy and start the integration:
+
+Create a bot in a new Slack Workspace
+Step 1: Create or Sign in to Slack
+Create/Sign in to a different slack workspace where we will create our bot and choose a workspace name for it.
+Step 2: Create a Slack app
+Let’s check out the slack api https://api.slack.com/apps
+Go to Create New App, select Create from scratch and give it a name.
+Step3: Add Bot Permissions
+Go to OAuth & Permissions tab and scroll down to Scopes.
+Now add all permissions your bot will need access to. Read the description carefully for all the scopes you’re providing the bot access to.
+Do include app_mentions:read, channels:history, channels:join, chat:write, incoming-webhook
+Step 4: Enable event subscription
+On the left, go to the event subscriptions and enable events.
+Now select all events we want to subscribe to from Subscribe to Bot Events. The event subscription will ensure slack sends the events when they occur to the link provided.
+We need to keep the link empty for now.
+Slack authorizes the link we provide, by sending a request with a challenge parameter and the app must respond with the challenge parameter.
 
 ## Deploying via App Engine
 
@@ -45,11 +70,31 @@ Open the app.yaml(https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/ma
 
 If you have not done so already, copy your Service Account JSON key file to the desired subdirectory.
 
-### Setup Slack
 
-The integration requires slack credentials from the slack api to function properly.
+### Deploying App Engine
+1. On the terminal, cd to the root directory of the cloned project and `gcloud app deploy --project [project-name]`
+   This will deploy your project.
+2. To check the logs, ` gcloud app --project [project-name] logs tail -s default`
+3. Plugin the url obtained from 2 into slack's event url. Request URL should get approved if the app was able to successfully respond back with the challenge parameter. 
+   This basically meant slack sent your URL some request, and you needed to respond with the challenge parameter, which you did!
+4. On slack, Ensure the bot events you need to subscribe to, are all selected. If not, then add and save them.
+   Include app_mention and message.im
+   
+## Install Slack bot to workspace and add bot to a Slack channel
+In the Slack API, go to the basic information for your app and install the app to your newly created workspace.
+On installing the app to the workspace, you should be able to see a token in OAuth & Permissions. This is your BOT_TOKEN.
+In basic information for the app, there should be one APP_TOKEN. Copy both and replace the values in config/token.go
 
-Follow the steps to obtain the credentials and setup the config/token.go file to deploy and start the integration:
+On slack, go to the channel(s) you want the slack bot to have access to and invite the bot to the channel. Refer the below image for adding the bot to a channel. Alternatively, you can type /invite on the channel
+
+
+
+
+
+
+
+
+
 
 ## Post-deployment
 
