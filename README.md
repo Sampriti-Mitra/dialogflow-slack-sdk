@@ -1,15 +1,15 @@
 # dialogflow-slack-sdk
 
-##Introduction
+## Introduction
 The goal of this guide is to show you how to set up an integration deployment to link your Dialogflow agent to slack.
 
 If you don't already have a Dialogflow agent, you may create one by following the instructions here or by adding a prebuilt agent.
 
 Although this integration deployment may be set up on any other hosting platform, these instructions will use Google's App Engine/Cloud functions.
 
-##GCP Setup
+## GCP Setup
 
-###gcloud CLI setup
+### gcloud CLI setup
 
 The deployment process for GCP App Engine and Cloud Functions via this README utilizes gcloud CLI commands. Follow the steps below to set up gcloud CLI locally for this deployment.
 
