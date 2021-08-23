@@ -2,9 +2,7 @@
 
 ## Introduction
 The goal of this guide is to show you how to set up an integration deployment to link your Dialogflow agent to slack.
-
 If you don't already have a Dialogflow agent, you may create one by following the instructions here or by adding a prebuilt agent.
-
 Although this integration deployment may be set up on any other hosting platform, these instructions will use Google's App Engine/Cloud functions.
 
 ## GCP Setup
@@ -29,7 +27,7 @@ Follow the steps below to create a Service Account and set up the integration.
 5. Save the JSON key file inside the functions/config directory of the cloned repo, else set the GOOGLE_APPLICATION_CREDENTIALS environmental variable on the deployment environment to the absolute path of Service Account JSON key file.
    See [this guide](https://cloud.google.com/dialogflow/docs/quick/setup#auth) for details.
 
-## Deploying the Integration
+## Deploying via App Engine
 
 ### Setup
 
@@ -43,7 +41,7 @@ Follow the steps below to create a Service Account and set up the integration.
 
 ### Changes in the app.yaml file
 
-Open the app.yaml(https://github.com/SampritiMitra/dialogFlowSlackSdk/app.yaml) in the root directory of the repository, and uncomment line 18 when using socket mode
+Open the app.yaml(https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/app.yaml) in the root directory of the repository, and uncomment the last line when using socket mode
 
 If you have not done so already, copy your Service Account JSON key file to the desired subdirectory.
 
