@@ -51,10 +51,16 @@ func main() {
 
 				switch eventsAPIEvent.Type {
 				case slackevents.CallbackEvent:
-					slackReq := externals.NewSlackRequest(nil, config.CREDENTIALS_PATH)
+					slackReq, slackReqErr := externals.NewSlackRequest(nil, config.CREDENTIALS_PATH)
+					if slackReqErr != nil {
+						//log.Print(slackReqErr)
+						statusCode := http.StatusInternalServerError
+						fmt.Print(statusCode)
+						continue
+					}
 					slackReq.EventsAPIEvent = &eventsAPIEvent
 
-					respChat, slackEventCallbackErr := slackReq.HandleSlackCallbackEvent()
+					respChat, slackEventCallbackErr := slackReq.SendSlackCallbackEventToDialogflowCxAndGetResponse()
 
 					if slackEventCallbackErr != nil {
 						log.Print(slackEventCallbackErr)
@@ -89,10 +95,15 @@ func main() {
 				switch callback.Type {
 				case slack.InteractionTypeBlockActions:
 
-					slackReq := externals.NewSlackRequest(nil, config.CREDENTIALS_PATH)
+					slackReq, slackReqErr := externals.NewSlackRequest(nil, config.CREDENTIALS_PATH)
+					if slackReqErr != nil {
+						statusCode := http.StatusInternalServerError
+						fmt.Print(statusCode)
+						continue
+					}
 					slackReq.InteractionCallback = &callback
 
-					respChat, slackInteractionEventCallbackErr := slackReq.HandleSlackInteractionEvent()
+					respChat, slackInteractionEventCallbackErr := slackReq.SendSlackInteractionEventToDialogFlowCxAndGetResponse()
 
 					if slackInteractionEventCallbackErr != nil {
 						log.Print(slackInteractionEventCallbackErr)
