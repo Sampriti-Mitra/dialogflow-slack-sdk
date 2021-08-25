@@ -3,7 +3,6 @@ package externals
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"google.golang.org/genproto/googleapis/cloud/dialogflow/cx/v3"
@@ -22,20 +21,26 @@ type SlackRequest struct {
 }
 
 func NewSlackRequest(req *http.Request, credentialsPath string) (*SlackRequest, error) {
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		return nil, err
+
+	var payload *slack.InteractionCallback
+
+	var body []byte
+
+	if req != nil {
+		err := json.Unmarshal([]byte(req.FormValue("payload")), &payload)
+		if err != nil {
+			payload = nil
+		}
+
+		if req.Body != nil {
+			body, err = ioutil.ReadAll(req.Body)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
-	var payload slack.InteractionCallback
-
-	err = json.Unmarshal([]byte(req.FormValue("payload")), &payload)
-	if err != nil {
-		fmt.Printf("Could not parse action response JSON: %v", err)
-		return nil, err
-	}
-
-	return &SlackRequest{body, nil, credentialsPath, &payload}, nil
+	return &SlackRequest{body, nil, credentialsPath, payload}, nil
 }
 
 func (slackReq SlackRequest) VerifyIncomingSlackRequests(headers http.Header, body []byte, signingSecret string, verifySecret bool) (statusCode int, err error) {
@@ -70,12 +75,10 @@ func (slackReq *SlackRequest) HandleSlackRequests(body []byte) ([]byte, int, err
 	// if interaction callback event
 	case slackReq.InteractionCallback != nil:
 		return slackReq.HandleInteractionCallbackEvents()
-
-	case slackReq.EventsAPIEvent != nil:
-		// if event callback
-		return slackReq.HandleEventsApiCallbackEvents(body)
 	}
-	return nil, 500, errors.New("Unsupported event")
+	// if event callback
+	return slackReq.HandleEventsApiCallbackEvents(body)
+	//return nil, 500, errors.New("Unsupported event")
 }
 
 func (slackReq *SlackRequest) HandleInteractionCallbackEvents() ([]byte, int, error) {
@@ -209,7 +212,6 @@ func (slackReq *SlackRequest) SendSlackInteractionEventToDialogFlowCxAndGetRespo
 	dialogflowcxReq := DialogFlowCXRequest{}
 
 	for _, blockAction := range actionCallbacks.BlockActions {
-		fmt.Print("block action :", *blockAction, "\n\n\n\n")
 		if blockAction != nil {
 			dialogflowcxReq = DialogFlowCXRequest{
 				userInput:       blockAction.Value,

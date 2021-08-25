@@ -21,7 +21,6 @@ func SimplestBotFunction(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprint(w, err)
-		log.Print(err)
 		return
 	}
 
@@ -33,8 +32,6 @@ func SimplestBotFunction(w http.ResponseWriter, r *http.Request) {
 		log.Print(err)
 		return
 	}
-
-	log.Print(r.Header, string(slackReq.Body))
 
 	w.Header().Set("X-Slack-No-Retry", "1")
 
