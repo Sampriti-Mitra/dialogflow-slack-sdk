@@ -1,6 +1,5 @@
 runtime: go116  # or another supported version
 
-#runtime: custom  # or another supported version
 #env: flex
 
 # Use only a single instance, so that this local-memory-only chat app will work
