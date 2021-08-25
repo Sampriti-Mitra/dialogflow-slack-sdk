@@ -2,7 +2,6 @@ token.json
 functions/dialogflowcx.json
 functions/go.mod
 functions/go.sum
-functions/config
 functions/config/dialogflowcx.json
 functions/config/token.go
  **/token.go
