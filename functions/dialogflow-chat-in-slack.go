@@ -16,9 +16,16 @@ func SimplestBotFunction(w http.ResponseWriter, r *http.Request) {
 
 	credentialsPath := config.CREDENTIALS_PATH
 
-	slackReq := externals.NewSlackRequest(r, credentialsPath)
+	slackReq, err := externals.NewSlackRequest(r, credentialsPath)
 
-	body, statusCode, err := slackReq.VerifyAndParseIncomingSlackRequests(signingSecret, verifySecret)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, err)
+		log.Print(err)
+		return
+	}
+
+	statusCode, err := slackReq.VerifyIncomingSlackRequests(r.Header, slackReq.Body, signingSecret, verifySecret)
 
 	if err != nil {
 		w.WriteHeader(statusCode)
@@ -27,11 +34,11 @@ func SimplestBotFunction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Print(r.Header, string(body))
+	log.Print(r.Header, string(slackReq.Body))
 
 	w.Header().Set("X-Slack-No-Retry", "1")
 
-	resp, statusCode, err := slackReq.HandleSlackRequests(body)
+	resp, statusCode, err := slackReq.HandleSlackRequests(slackReq.Body)
 
 	w.WriteHeader(statusCode)
 

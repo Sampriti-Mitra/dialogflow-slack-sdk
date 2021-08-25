@@ -15,28 +15,36 @@ import (
 )
 
 type SlackRequest struct {
-	*http.Request
+	Body []byte
 	*slackevents.EventsAPIEvent
 	credentials string
 	*slack.InteractionCallback
 }
 
-func NewSlackRequest(req *http.Request, credentialsPath string) SlackRequest {
-	return SlackRequest{req, nil, credentialsPath, nil}
+func NewSlackRequest(req *http.Request, credentialsPath string) (*SlackRequest, error) {
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload slack.InteractionCallback
+
+	err = json.Unmarshal([]byte(req.FormValue("payload")), &payload)
+	if err != nil {
+		fmt.Printf("Could not parse action response JSON: %v", err)
+		return nil, err
+	}
+
+	return &SlackRequest{body, nil, credentialsPath, &payload}, nil
 }
 
-func (slackReq SlackRequest) VerifyAndParseIncomingSlackRequests(signingSecret string, verifySecret bool) (respBody []byte, statusCode int, err error) {
-	body, err := ioutil.ReadAll(slackReq.Body)
-	if err != nil {
-		statusCode = http.StatusBadRequest
-		return
-	}
+func (slackReq SlackRequest) VerifyIncomingSlackRequests(headers http.Header, body []byte, signingSecret string, verifySecret bool) (statusCode int, err error) {
 
 	if !verifySecret { // in case of url verification, secret header is not passed
-		return body, 200, nil
+		return 200, nil
 	}
 
-	sv, err := slack.NewSecretsVerifier(slackReq.Header, signingSecret)
+	sv, err := slack.NewSecretsVerifier(headers, signingSecret)
 	if err != nil {
 		log.Print("error in secret  verification ", err)
 		statusCode = http.StatusBadRequest
@@ -53,11 +61,42 @@ func (slackReq SlackRequest) VerifyAndParseIncomingSlackRequests(signingSecret s
 		statusCode = http.StatusUnauthorized
 		return
 	}
-	return body, 200, nil
+	return 200, nil
 }
 
 func (slackReq *SlackRequest) HandleSlackRequests(body []byte) ([]byte, int, error) {
 
+	switch {
+	// if interaction callback event
+	case slackReq.InteractionCallback != nil:
+		return slackReq.HandleInteractionCallbackEvents()
+
+	case slackReq.EventsAPIEvent != nil:
+		// if event callback
+		return slackReq.HandleEventsApiCallbackEvents(body)
+	}
+	return nil, 500, errors.New("Unsupported event")
+}
+
+func (slackReq *SlackRequest) HandleInteractionCallbackEvents() ([]byte, int, error) {
+	respChat, slackInteractionEventCallbackErr := slackReq.SendSlackInteractionEventToDialogFlowCxAndGetResponse()
+
+	if slackInteractionEventCallbackErr != nil {
+		return nil, http.StatusInternalServerError, slackInteractionEventCallbackErr
+	}
+
+	slackErr := slackReq.PostMsgToSlack(nil, slackReq.InteractionCallback, respChat)
+
+	if slackErr != nil {
+		log.Print(slackErr)
+		statusCode := http.StatusInternalServerError
+		return nil, statusCode, slackErr
+	}
+
+	return []byte("OK"), 200, nil
+}
+
+func (slackReq *SlackRequest) HandleEventsApiCallbackEvents(body []byte) ([]byte, int, error) {
 	eventsAPIEvent, err := slackevents.ParseEvent(body, slackevents.OptionNoVerifyToken())
 	if err != nil {
 		log.Print("error in parse event ", err)
@@ -82,7 +121,7 @@ func (slackReq *SlackRequest) HandleSlackRequests(body []byte) ([]byte, int, err
 
 	case slackevents.CallbackEvent:
 
-		respChat, slackEventCallbackErr := slackReq.HandleSlackCallbackEvent()
+		respChat, slackEventCallbackErr := slackReq.SendSlackCallbackEventToDialogflowCxAndGetResponse()
 
 		if slackEventCallbackErr != nil {
 			log.Print(slackEventCallbackErr)
@@ -130,7 +169,7 @@ func (slackReq *SlackRequest) PostMsgToSlack(innerEvent *slackevents.EventsAPIIn
 	return nil
 }
 
-func (slackReq *SlackRequest) HandleSlackCallbackEvent() ([]*cx.ResponseMessage, error) {
+func (slackReq *SlackRequest) SendSlackCallbackEventToDialogflowCxAndGetResponse() ([]*cx.ResponseMessage, error) {
 	innerEvent := slackReq.EventsAPIEvent.InnerEvent
 
 	isBot := ""
@@ -163,7 +202,7 @@ func (slackReq *SlackRequest) HandleSlackCallbackEvent() ([]*cx.ResponseMessage,
 
 }
 
-func (slackReq *SlackRequest) HandleSlackInteractionEvent() ([]*cx.ResponseMessage, error) {
+func (slackReq *SlackRequest) SendSlackInteractionEventToDialogFlowCxAndGetResponse() ([]*cx.ResponseMessage, error) {
 	actionCallbacks := slackReq.InteractionCallback.ActionCallback
 
 	// make a dialogflow request
