@@ -17,7 +17,7 @@ func init() {
 	server = httptest.NewServer(handler)
 }
 
-func TestSimplestBotFunction(t *testing.T) {
+func TestSimplestBotFunctionWithUrlVerification(t *testing.T) {
 
 	t.Run("asserts url verified", func(t *testing.T) {
 		body := map[string]interface{}{
