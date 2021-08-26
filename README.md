@@ -2,19 +2,19 @@
 
 ## Introduction
 The goal of this guide is to show you how to set up an integration deployment to link your Dialogflow agent to slack.
-If you don't already have a Dialogflow agent, you may create one by adding a prebuilt agent.
+If you don't already have a Dialogflow agent, you may create one or add a [prebuilt agent](https://cloud.google.com/dialogflow/cx/docs/concept/agents-prebuilt). <br>
 Although this integration deployment may be set up on any other hosting platform, these instructions will use Google's App Engine/Cloud functions.
 
 ## GCP Setup
-Step 1: Log in or Sign up for GCP
-Log in or sign up to google cloud console using a credit or debit card for a free trial. Create a project and enable billing for that project. 
-For deploying with App Engine, go to App Engine and enable the API. See [here](https://cloud.google.com/appengine/docs/standard/go/console) for more. 
-For deploying with Cloud Functions, Go to Cloud Functions and enable the API, also enable Cloud Build and Deploy.
 
+### Log in or Sign up for GCP
+1. Log in or sign up to google cloud console using a credit or debit card for a free trial. Create a project and enable billing for that project. 
+2. For deploying with App Engine, go to App Engine and enable the API. See [here](https://cloud.google.com/appengine/docs/standard/go/console) for more details. 
+3. For deploying with Cloud Functions, see the [Cloud Functions README](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/functions/README.md).
 
 ### gcloud CLI setup
 
-The deployment process for GCP App Engine and Cloud Functions via this README utilizes gcloud CLI commands. Follow the steps below to set up gcloud CLI locally for this deployment.
+The deployment process for GCP App Engine via this README utilizes gcloud CLI commands. Follow the steps below to set up gcloud CLI locally for this deployment.
 
 1. On the gcloud CLI [documentation page](https://cloud.google.com/sdk/docs/quickstarts), select your OS and follow the instructions for the installation.
 2. Run ``gcloud config get-value project`` to check the GCP Project configured.
@@ -23,22 +23,16 @@ The deployment process for GCP App Engine and Cloud Functions via this README ut
 
 For the integration to function properly, it is necessary to create a Service Account in your agent’s GCP Project. See [this page](https://cloud.google.com/dialogflow/docs/quick/setup#sa-create) of the documentation for more details.
 
-Follow the steps below to create a Service Account and set up the integration.
-
-1. Go into your project's settings and click on the Project ID link to open the associated GCP Project.
-2. Click on the navigation menu in the GCP console, hover over "IAM & admin", and click "Service accounts".
-3. Click on "+ CREATE SERVICE ACCOUNT", fill in the details, and give it the "Dialogflow Client API" role.
-4. Click on "+ Create Key" and download the resulting JSON key file.
-5. Save the JSON key file as dialogflowcx.json inside the functions/config directory of the cloned repo(not recommended for production), else set the GOOGLE_APPLICATION_CREDENTIALS environmental variable on the deployment environment to the absolute path of Service Account JSON key file.
+1. For the service account, fill in the details, and give it the "Dialogflow Client API" role.
+2. Download the resulting JSON key file.
+3. Save the JSON key file as dialogflowcx.json inside the functions/config directory of the cloned repo(not recommended for production), else set the GOOGLE_APPLICATION_CREDENTIALS env variable on the deployment environment to the absolute path of Service Account JSON key file.
    See [this guide](https://cloud.google.com/dialogflow/docs/quick/setup#auth) for details. If JSON key is saved inside the repo, then uncomment CREDENTIALS_PATH in [this](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/functions/config/token.go) file.
 
 ### Creating a Slack app
 Create a bot in a new Slack Workspace
 1. Create or Sign in to Slack<br>
-   Create/Sign in to a different slack workspace where we will create our bot and choose a workspace name for it.
 2. Create a Slack app<br>
-   Let’s check out the slack api https://api.slack.com/apps.
-   Go to Create New App, select Create from scratch and give it a name.<br>
+   Go to https://api.slack.com/apps, click on Create New App, select Create from scratch and give it a name.<br>
 3. Add Bot Permissions<br>
    Go to OAuth & Permissions tab and scroll down to Scopes.<br>
    Now add all permissions your bot will need access to. Read the description carefully for all the scopes you’re providing the bot access to.<br>
@@ -49,7 +43,7 @@ Create a bot in a new Slack Workspace
    The event subscription will ensure slack sends the events when they occur to the link provided.<br>
    We need to keep the link empty for now.
    Slack authorizes the link we provide, by sending a request with a challenge parameter and the app must respond with the challenge parameter.
-   5. Go to interactivity and shortcuts and enable interactivity. The url to be entered is your app's url.
+5. Go to interactivity and shortcuts and enable interactivity. The url to be entered is your app's url.
 
 ### Setup Slack
 
