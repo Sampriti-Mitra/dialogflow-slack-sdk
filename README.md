@@ -31,17 +31,13 @@ For the integration to function properly, it is necessary to create a Service Ac
 ### Creating a Slack app
 Create a bot in a new Slack Workspace
 1. Create or Sign in to Slack<br>
-2. Create a Slack app<br>
-   Go to https://api.slack.com/apps, click on Create New App, select Create from scratch and give it a name.<br>
-3. Add Bot Permissions<br>
-   Go to OAuth & Permissions tab and scroll down to Scopes.<br>
-   Now add all permissions your bot will need access to. Read the description carefully for all the scopes you’re providing the bot access to.<br>
-   Do include app_mentions:read, chat:write, im:history, im:read, im:write<br>
+2. Create a [Slack app](https://api.slack.com/apps) <br>
+3. Adding Bot scopes in  OAuth & Permissions tab<br>
+   Add app_mentions:read, chat:write, im:history, im:read, im:write<br>
 4. Enable event subscription<br>
-   On the left, go to the event subscriptions and enable events app_mention, message.im.<br>
-   Now select all events we want to subscribe to from Subscribe to Bot Events.
+   Go to the event subscriptions and enable events app_mention, message.im.<br>
    The event subscription will ensure slack sends the events when they occur to the link provided.<br>
-   We need to keep the link empty for now.
+   The url to be entered is your app's url.
    Slack authorizes the link we provide, by sending a request with a challenge parameter and the app must respond with the challenge parameter.
 5. Go to interactivity and shortcuts and enable interactivity. The url to be entered is your app's url.
 
@@ -52,25 +48,25 @@ The integration requires slack credentials from the slack api to function proper
 Follow the steps to obtain the credentials and setup the [/functions/config/token.go](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/functions/config/token.go) file to deploy and start the integration:<br>
 1. In the Slack API, go to the basic information for your app and install the app to your workspace.
 2. On installing the app to the workspace, you should be able to see a token in OAuth & Permissions. This is your BOT_TOKEN.
-3. In Basic Information section for the app, create an APP_TOKEN under the App-Level Tokens. Copy both and replace the values in config/token.go
-4. In Basic Information section  for the app, click on Show for Signing Secret, copy it and replace the value in config/token.go.
+3. In Basic Information section for the app, create an APP_TOKEN under the App-Level Tokens.
+4. In Basic Information section  for the app, click on Show for Signing Secret.
+   Copy and replace all token the values above in config/token.go file.
 5. On slack, go to the channel(s) you want the slack bot to have access to and invite the bot to the channel. Alternatively, you can type /invite on the channel
 
-There are two modes in slack to obtain information about events occuring in slack.
-1. Through The Events Api
+There are two modes in slack to obtain information about events occurring in slack.
+1. Through Event subscription via The Events Api
 2. Through socket mode
-To switch to socket mode, go to socket mode tab on slack api and turn on socket mode. Follow the App Engine set up below and then refer [README](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/functions/socket_mode/README.md)
+To switch to socket mode, go to socket mode tab on slack api and turn on socket mode. <br>
+   Follow the App Engine set up below and then refer [README](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/functions/socket_mode/README.md)
 
 
 ## Deploying via App Engine
-
-For deploying via Cloud Functions see this [README](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/functions/README.md)
 
 ### Setup
 
 1. Go into the project's settings and click on the Project ID link to open its associated GCP Project.
 2. Click on the navigation menu in the GCP console and click "Billing". Set up and enable billing for the project.
-3. Enable Google App Engine or Google Cloud Functions, according to what you want to use, for the project
+3. Enable Google App Engine for the project
    [here](https://console.cloud.google.com/flows/enableapi?apiid=cloudbuild.googleapis.com,run.googleapis.com).
 4. Clone this git repository onto your local machine or development environment:
    `git clone [repository url]`
@@ -84,9 +80,9 @@ If you have not done so already, copy (or export) your Service Account JSON key 
 
 
 ### Deploying App Engine
-1. On the terminal, cd to the root directory of the cloned project and `gcloud app deploy --project [project-name]`
+1. On the terminal, cd to the root directory of the cloned project and `gcloud app deploy --project [project-id]`
    This will deploy your project.
-2. To check the logs, ` gcloud app --project [project-name] logs tail -s default`
+2. To check the logs, ` gcloud app --project [project-id] logs tail -s default`
 3. Plugin the url obtained from 1 into slack's event url. Request URL should get approved if the app was able to successfully respond back with the challenge parameter. 
    This basically meant slack sent your URL some request, and you needed to respond with the challenge parameter, which you did!
 4. Plugin the url into the request url in interactivity and shortcuts tab in slack api.
@@ -94,6 +90,14 @@ If you have not done so already, copy (or export) your Service Account JSON key 
    Include app_mention and message.im
    
 ## Using the dialogflowcx integration-What to expect
+Through this sdk you should be able to integrate dialogflowcx agent with slack bot.
+You can do the following:
+1. Interact with an agent on bot home page.
+2. Interact with agent on channel by mentioning the bot name with @<bot-name>
+3. On channel, the bot will reply to bot mentions requests on the same thread.
+4. The conversation can be continued from channel to DM (bot Home). 
+5. Display custom payloads from dialogflowcx via slack's block kit.
+6. Interact with block elements (like buttons) for interacting with agent.
 
    
 ## Post-deployment
@@ -101,3 +105,6 @@ If you have not done so already, copy (or export) your Service Account JSON key 
 ### Shutting Down an Integration
 
 In order to shut down an integration set up via the steps in this README, you need to delete the entire project where app engine is hosted.
+
+## Deploying via cloud Functions
+For deploying via Cloud Functions see this [README](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/functions/README.md)
