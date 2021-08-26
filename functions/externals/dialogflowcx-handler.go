@@ -24,8 +24,6 @@ func (dialogflowcxReq DialogFlowCXRequest) GetDialogFlowCXResponse() ([]*cx.Resp
 
 	ctx := context.Background()
 
-	sa := option.WithCredentialsFile(dialogflowcxReq.credentialsPath)
-
 	detectIntentReq := cx.DetectIntentRequest{
 		Session: agent + "/sessions/" + ProjectId + dialogflowcxReq.sessionId,
 		QueryInput: &cx.QueryInput{
@@ -43,7 +41,12 @@ func (dialogflowcxReq DialogFlowCXRequest) GetDialogFlowCXResponse() ([]*cx.Resp
 		internaloption.WithDefaultAudience("https://us-central1-dialogflow.googleapis.com/"),
 	}
 
-	dialogFlowClient, err := dialogflowcx.NewSessionsClient(ctx, append(opts, sa)...)
+	if dialogflowcxReq.credentialsPath!=""{
+		sa := option.WithCredentialsFile(dialogflowcxReq.credentialsPath)
+		opts = append(opts, sa)
+	}
+
+	dialogFlowClient, err := dialogflowcx.NewSessionsClient(ctx, opts...)
 
 	if err != nil {
 		log.Print(err)
