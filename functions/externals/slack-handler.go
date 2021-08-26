@@ -154,6 +154,10 @@ func (slackReq *SlackRequest) PostMsgToSlack(innerEvent *slackevents.EventsAPIIn
 
 	blocks, _ := utils.ParsePayloadFromResponse(responseMessages)
 
+	// if it is an eventsApi callback event
+	// then post as separate message if it is a DM message
+	// otherwise post as a reply to the existing thread in channel
+
 	if innerEvent != nil {
 		switch ev := innerEvent.Data.(type) {
 		case *slackevents.AppMentionEvent:
@@ -167,8 +171,15 @@ func (slackReq *SlackRequest) PostMsgToSlack(innerEvent *slackevents.EventsAPIIn
 		}
 	}
 
+	// if it is an interaction event, then post as separate message if DM
+	// if channel, post as a reply to the thread
 	if interactiveCallbackMessage != nil {
-		api.PostMessage(interactiveCallbackMessage.Channel.ID, slack.MsgOptionText(responseStr, true), slack.MsgOptionBlocks(blocks...))
+		log.Print("interactive post message: ", interactiveCallbackMessage.Channel)
+		if interactiveCallbackMessage.Channel.IsIM {
+			api.PostMessage(interactiveCallbackMessage.Channel.ID, slack.MsgOptionText(responseStr, true), slack.MsgOptionBlocks(blocks...))
+		} else {
+			api.PostMessage(interactiveCallbackMessage.Channel.ID, slack.MsgOptionTS(interactiveCallbackMessage.Container.ThreadTs), slack.MsgOptionText(responseStr, true), slack.MsgOptionBlocks(blocks...))
+		}
 	}
 
 	return nil

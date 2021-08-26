@@ -88,6 +88,10 @@ Open the [app.yaml](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/
 
 If you have not done so already, copy (or export) your Service Account JSON key file to the desired subdirectory.
 
+### Changes in token.go file
+Open the token.go file and add all slack tokens as mentioned in the slack set up above. 
+Also add the project id of your GCP project as well as the agent name in dialogflow.
+
 
 ### Deploying App Engine
 1. On the terminal, cd to the root directory of the cloned project and `gcloud app deploy --project [project-id]`
