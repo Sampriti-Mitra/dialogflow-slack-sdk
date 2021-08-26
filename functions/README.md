@@ -1,9 +1,13 @@
 # Deploying with Cloud Functions
 We can also deploy this using cloud functions deployment.
-Follow the instructions on the ReadMe at the root of this project. 
+Follow the instructions on the ReadMe at the root of this project.
+For deploying with Cloud Functions, Go to Cloud Functions and enable the API, also enable Cloud Build and Deploy.
+
+## gcloud CLI set up
+The deployment process for GCP Cloud functions via this README utilizes gcloud CLI commands. Follow the steps in the main README to set up gcloud CLI locally for this deployment.
 
 
-### Deploying Cloud Functions
+## Deploying Cloud Functions
 1. On the terminal, cd to the functions directory of the cloned project and `gcloud functions deploy SimplestBotFunction --runtime go113 --trigger-http --allow-unauthenticated`
    This will deploy your project.
    
