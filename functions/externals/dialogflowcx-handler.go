@@ -41,7 +41,7 @@ func (dialogflowcxReq DialogFlowCXRequest) GetDialogFlowCXResponse() ([]*cx.Resp
 		internaloption.WithDefaultAudience("https://us-central1-dialogflow.googleapis.com/"),
 	}
 
-	if dialogflowcxReq.credentialsPath!=""{
+	if dialogflowcxReq.credentialsPath != "" {
 		sa := option.WithCredentialsFile(dialogflowcxReq.credentialsPath)
 		opts = append(opts, sa)
 	}
