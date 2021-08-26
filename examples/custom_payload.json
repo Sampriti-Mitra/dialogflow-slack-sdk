@@ -1,0 +1,68 @@
+{
+ "blocks": [
+  {
+   "type": "section",
+   "text": {
+    "type": "mrkdwn",
+    "text": "Great! Now let's choose a vehicle.Would you like the Nissan Versa or the Mitsubishi Mirage? \n\n"
+   }
+  },
+  {
+   "type": "section",
+   "text": {
+    "type": "mrkdwn",
+    "text": "*Chevy Taho*\n:star::star::star::star: 1528 reviews\n The Chevy Tahoe is $65.53 per day. It fits 7 people and comes with unlimited mileage included."
+   },
+   "accessory": {
+    "type": "image",
+    "image_url": "https://www.chevrolet.com/content/dam/chevrolet/na/us/english/index/vehicles/2021/crossovers-suvs/tahoe/mov/01-images/2021-tahoe-safety-01-v2.jpg?imwidth=240",
+    "alt_text": "alt text for image"
+   }
+  },
+  {
+   "type": "actions",
+   "elements": [
+    {
+     "type": "button",
+     "text": {
+      "type": "plain_text",
+      "text": "Chevy Taho",
+      "emoji": true
+     },
+     "value": "click_me_123",
+     "action_id": "actionId-0"
+    }
+   ]
+  },
+  {
+   "type": "divider"
+  },
+  {
+   "type": "section",
+   "text": {
+    "type": "mrkdwn",
+    "text": "*Dodge Charger*\n:star::star::star::star: 1528 reviews\n The Dodge Charger is $67.23 per day. It fits 4 people and comes with unlimited mileage included."
+   },
+   "accessory": {
+    "type": "image",
+    "image_url": "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/2020-dodge-charger-mmp-1-1567712643.jpg",
+    "alt_text": "alt text for image"
+   }
+  },
+  {
+   "type": "actions",
+   "elements": [
+    {
+     "type": "button",
+     "text": {
+      "type": "plain_text",
+      "text": "Dodge Charger",
+      "emoji": true
+     },
+     "value": "click_me_123",
+     "action_id": "actionId-1"
+    }
+   ]
+  }
+ ]
+}
