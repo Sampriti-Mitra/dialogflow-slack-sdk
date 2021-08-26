@@ -43,11 +43,7 @@ func NewSlackRequest(req *http.Request, credentialsPath string) (*SlackRequest, 
 	return &SlackRequest{body, nil, credentialsPath, payload}, nil
 }
 
-func (slackReq SlackRequest) VerifyIncomingSlackRequests(headers http.Header, body []byte, signingSecret string, verifySecret bool) (statusCode int, err error) {
-
-	if !verifySecret { // in case of url verification, secret header is not passed
-		return 200, nil
-	}
+func (slackReq SlackRequest) VerifyIncomingSlackRequests(headers http.Header, body []byte, signingSecret string) (statusCode int, err error) {
 
 	sv, err := slack.NewSecretsVerifier(headers, signingSecret)
 	if err != nil {
@@ -69,7 +65,7 @@ func (slackReq SlackRequest) VerifyIncomingSlackRequests(headers http.Header, bo
 	return 200, nil
 }
 
-func (slackReq *SlackRequest) HandleSlackRequests(body []byte) ([]byte, int, error) {
+func (slackReq *SlackRequest) HandleSlackRequests(body []byte, isIncomingRequestVerified bool) ([]byte, int, error) {
 
 	switch {
 	// if interaction callback event
@@ -77,7 +73,7 @@ func (slackReq *SlackRequest) HandleSlackRequests(body []byte) ([]byte, int, err
 		return slackReq.HandleInteractionCallbackEvents()
 	}
 	// if event callback
-	return slackReq.HandleEventsApiCallbackEvents(body)
+	return slackReq.HandleEventsApiCallbackEvents(body, isIncomingRequestVerified)
 	//return nil, 500, errors.New("Unsupported event")
 }
 
@@ -99,7 +95,7 @@ func (slackReq *SlackRequest) HandleInteractionCallbackEvents() ([]byte, int, er
 	return []byte("OK"), 200, nil
 }
 
-func (slackReq *SlackRequest) HandleEventsApiCallbackEvents(body []byte) ([]byte, int, error) {
+func (slackReq *SlackRequest) HandleEventsApiCallbackEvents(body []byte, isIncomingRequestVerified bool) ([]byte, int, error) {
 	eventsAPIEvent, err := slackevents.ParseEvent(body, slackevents.OptionNoVerifyToken())
 	if err != nil {
 		log.Print("error in parse event ", err)
@@ -124,6 +120,10 @@ func (slackReq *SlackRequest) HandleEventsApiCallbackEvents(body []byte) ([]byte
 
 	case slackevents.CallbackEvent:
 
+		if !isIncomingRequestVerified {
+			return nil, 400, errors.New("slack request needs signing secret header")
+		}
+
 		respChat, slackEventCallbackErr := slackReq.SendSlackCallbackEventToDialogflowCxAndGetResponse()
 
 		if slackEventCallbackErr != nil {
@@ -139,6 +139,8 @@ func (slackReq *SlackRequest) HandleEventsApiCallbackEvents(body []byte) ([]byte
 			statusCode := http.StatusInternalServerError
 			return nil, statusCode, slackErr
 		}
+	default:
+		return nil, 400, errors.New("Type not supported")
 	}
 
 	return []byte("OK"), 200, nil

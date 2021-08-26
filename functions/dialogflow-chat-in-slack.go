@@ -10,9 +10,9 @@ import (
 
 func SimplestBotFunction(w http.ResponseWriter, r *http.Request) {
 
-	signingSecret := config.SLACK_SIGNING_SECRET
+	var isIncomingRequestVerified bool
 
-	verifySecret := config.VERIFY_SECRET
+	signingSecret := config.SLACK_SIGNING_SECRET
 
 	credentialsPath := config.CREDENTIALS_PATH
 
@@ -24,18 +24,15 @@ func SimplestBotFunction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	statusCode, err := slackReq.VerifyIncomingSlackRequests(r.Header, slackReq.Body, signingSecret, verifySecret)
+	statusCode, err := slackReq.VerifyIncomingSlackRequests(r.Header, slackReq.Body, signingSecret)
 
-	if err != nil {
-		w.WriteHeader(statusCode)
-		fmt.Fprint(w, err)
-		log.Print(err)
-		return
+	if err == nil {
+		isIncomingRequestVerified = true
 	}
 
 	w.Header().Set("X-Slack-No-Retry", "1")
 
-	resp, statusCode, err := slackReq.HandleSlackRequests(slackReq.Body)
+	resp, statusCode, err := slackReq.HandleSlackRequests(slackReq.Body, isIncomingRequestVerified)
 
 	w.WriteHeader(statusCode)
 
