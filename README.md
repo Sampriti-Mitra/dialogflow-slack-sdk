@@ -8,12 +8,12 @@ Although this integration deployment may be set up on any other hosting platform
 ## Using the dialogflowcx integration-What to expect
 Through this sdk you should be able to integrate dialogflowcx agent with slack bot.
 You can do the following:
-1. Interact with an agent on bot home page via Events or SocketMode.
+1. Interact with an agent on bot home page via Events or SocketMode. 
 2. Interact with agent on channel by mentioning the bot name with @(bot-name)
 3. On channel, the bot will reply to bot mentions requests on the same thread.
 4. The conversation can be continued from channel to DM (bot Home).
-5. Display custom payloads from dialogflowcx via slack's block kit.
-6. Interact with block elements (like buttons) for interacting with agent.
+5. Display custom payloads from dialogflowcx via slack's block kit ![link](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/images/block_kit_builder.png?raw=true)
+6. Interact with block elements (like buttons) for interacting with agent ![link](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/images/custom_payload_in_dm.png?raw=true).
 
 ## GCP Setup
 
@@ -39,7 +39,7 @@ For the integration to function properly, it is necessary to create a Service Ac
    See [this guide](https://cloud.google.com/dialogflow/docs/quick/setup#auth) for details. If JSON key is saved inside the repo, then uncomment CREDENTIALS_PATH in [this](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/functions/config/token.go) file.
 
 ### Creating a Slack app
-Create a bot in a new Slack Workspace
+Create a bot in a new Slack Workspace ![link](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/images/slack_bot_settings.png?raw=true)
 1. Create or Sign in to Slack<br>
 2. Create a [Slack app](https://api.slack.com/apps) <br>
 3. Adding Bot scopes in  OAuth & Permissions tab<br>
