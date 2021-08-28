@@ -84,7 +84,7 @@ func (slackReq *SlackRequest) HandleInteractionCallbackEvents() ([]byte, int, er
 		return nil, http.StatusInternalServerError, slackInteractionEventCallbackErr
 	}
 
-	slackErr := slackReq.PostMsgToSlack(nil, slackReq.InteractionCallback, respChat)
+	slackErr := slackReq.UpdateInteractiveSlackMessage(slackReq.InteractionCallback, respChat)
 
 	if slackErr != nil {
 		log.Print(slackErr)
@@ -120,6 +120,8 @@ func (slackReq *SlackRequest) HandleEventsApiCallbackEvents(body []byte, isIncom
 
 	case slackevents.CallbackEvent:
 
+		// if request is not verified, only url verification is allowed,
+		//no action to callback events are allowed
 		if !isIncomingRequestVerified {
 			return nil, 400, errors.New("slack request needs signing secret header")
 		}
@@ -174,7 +176,6 @@ func (slackReq *SlackRequest) PostMsgToSlack(innerEvent *slackevents.EventsAPIIn
 	// if it is an interaction event, then post as separate message if DM
 	// if channel, post as a reply to the thread
 	if interactiveCallbackMessage != nil {
-		log.Print("interactive post message: ", interactiveCallbackMessage.Channel)
 		if interactiveCallbackMessage.Channel.IsIM {
 			api.PostMessage(interactiveCallbackMessage.Channel.ID, slack.MsgOptionText(responseStr, true), slack.MsgOptionBlocks(blocks...))
 		} else {
@@ -185,32 +186,57 @@ func (slackReq *SlackRequest) PostMsgToSlack(innerEvent *slackevents.EventsAPIIn
 	return nil
 }
 
+func (slackReq *SlackRequest) UpdateInteractiveSlackMessage(interactiveCallbackMessage *slack.InteractionCallback, responseMessages []*cx.ResponseMessage) error {
+
+	responseStr := utils.ParseStringFromResponse(responseMessages)
+
+	blocks, _ := utils.ParsePayloadFromResponse(responseMessages)
+
+	webhookMsg := slack.WebhookMessage{
+		Channel: interactiveCallbackMessage.Channel.ID,
+		Blocks:  &slack.Blocks{BlockSet: blocks},
+		Text:    responseStr,
+	}
+
+	// if it is an interaction event, then post as separate message if DM
+	// if channel, post as a reply to the thread
+	if interactiveCallbackMessage != nil {
+		if !interactiveCallbackMessage.Channel.IsIM {
+			webhookMsg.ThreadTimestamp = interactiveCallbackMessage.Container.ThreadTs
+		}
+		slack.PostWebhook(interactiveCallbackMessage.ResponseURL, &webhookMsg)
+	}
+
+	return nil
+}
+
 func (slackReq *SlackRequest) SendSlackCallbackEventToDialogflowCxAndGetResponse() ([]*cx.ResponseMessage, error) {
 	innerEvent := slackReq.EventsAPIEvent.InnerEvent
 
-	isBot := ""
+	var botId, text, user string
 
 	// make a dialogflow request
 	dialogflowcxReq := DialogFlowCXRequest{}
 
 	switch ev := innerEvent.Data.(type) {
 	case *slackevents.AppMentionEvent:
-		isBot = ev.BotID
-		dialogflowcxReq = DialogFlowCXRequest{
-			userInput:       utils.ParseTextFromInput(ev.Text),
-			sessionId:       ev.User,
-			credentialsPath: slackReq.credentials,
-		}
+		botId = ev.BotID
+		text = utils.ParseTextFromInput(ev.Text)
+		user = ev.User
+
 	case *slackevents.MessageEvent:
-		isBot = ev.BotID
-		dialogflowcxReq = DialogFlowCXRequest{
-			userInput:       utils.ParseTextFromInput(ev.Text),
-			sessionId:       ev.User,
-			credentialsPath: slackReq.credentials,
-		}
+		botId = ev.BotID
+		text = utils.ParseTextFromInput(ev.Text)
+		user = ev.User
 	}
 
-	if isBot != "" {
+	dialogflowcxReq = DialogFlowCXRequest{
+		userInput:       text,
+		sessionId:       user,
+		credentialsPath: slackReq.credentials,
+	}
+
+	if botId != "" || text == "" {
 		return nil, errors.New("Can't reply to bot message")
 	}
 
@@ -225,7 +251,7 @@ func (slackReq *SlackRequest) SendSlackInteractionEventToDialogFlowCxAndGetRespo
 	dialogflowcxReq := DialogFlowCXRequest{}
 
 	for _, blockAction := range actionCallbacks.BlockActions {
-		if blockAction != nil {
+		if blockAction != nil && blockAction.Value != "" {
 			dialogflowcxReq = DialogFlowCXRequest{
 				userInput:       blockAction.Value,
 				sessionId:       slackReq.InteractionCallback.User.ID,
@@ -235,7 +261,7 @@ func (slackReq *SlackRequest) SendSlackInteractionEventToDialogFlowCxAndGetRespo
 		}
 	}
 
-	return nil, nil
+	return nil, errors.New("no proper input to dialgflowcx")
 }
 
 func (slackReq *SlackRequest) HandleSlackURLVerificationkEvent(body []byte) (*slackevents.ChallengeResponse, error) {
