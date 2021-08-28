@@ -8,6 +8,10 @@ The deployment process for GCP Cloud functions via this README utilizes gcloud C
 
 
 ## Deploying Cloud Functions
+1. Ensure in the functions directory, you have a go.mod. If you don't, 
+   a. delete the go.mod in the root directory and cd to functions directory<br>
+   b. go mod init
+   c. go mod tidy
 1. On the terminal, cd to the functions directory of the cloned project and `gcloud functions deploy SimplestBotFunction --runtime go113 --trigger-http --allow-unauthenticated`
    This will deploy your project.
    
