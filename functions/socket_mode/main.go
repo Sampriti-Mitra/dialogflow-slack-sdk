@@ -69,7 +69,7 @@ func main() {
 						continue
 					}
 
-					slackErr := slackReq.PostMsgToSlack(&slackReq.EventsAPIEvent.InnerEvent, nil, respChat)
+					slackErr := slackReq.PostMsgToSlack(respChat)
 
 					if slackErr != nil {
 						log.Print(slackErr)
