@@ -1,5 +1,3 @@
-token.json
-functions/dialogflowcx.json
 functions/go.mod
 functions/go.sum
 functions/config/dialogflowcx.json
@@ -9,4 +7,3 @@ functions/config/token.go
  functions/socket_mode/.gcloudignore
  **/.gcloudignore
  .gcloudignore
-

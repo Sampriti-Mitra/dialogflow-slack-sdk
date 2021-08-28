@@ -112,7 +112,7 @@ func main() {
 						continue
 					}
 
-					slackErr := slackReq.PostMsgToSlack(nil, &callback, respChat)
+					slackErr := slackReq.UpdateInteractiveSlackMessage(&callback, respChat)
 
 					if slackErr != nil {
 						log.Print(slackErr)
