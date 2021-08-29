@@ -1,11 +1,11 @@
 # Socket Mode
-Socket Mode allows your app to communicate with Slack via a WebSocket URL. WebSockets use a bidirectional stateful protocol with low latency to communicate between two parties—in this case, Slack and your app.
+Socket Mode allows your app to communicate with Slack via a WebSocket URL. WebSockets use a bidirectional stateful protocol with low latency to communicate between two parties—in this case, Slack and your app. <br>
 
-Unlike a public HTTP endpoint, the WebSocket URL you listen to is not static. It's created at runtime by calling the apps.connections.open method, and it refreshes regularly.
+Unlike a public HTTP endpoint, the WebSocket URL you listen to is not static. It's created at runtime by calling the apps.connections.open method, and it refreshes regularly.<br>
 
-Because the URL isn't static and is created at runtime, it allows for greater security in some cases, and it allows you to develop behind a firewall.
+Because the URL isn't static and is created at runtime, it allows for greater security in some cases, and it allows you to develop behind a firewall.<br>
 
-In Socket Mode, your app still uses the very same Events API and interactive components of the Slack platform. The only difference is the communication protocol.
+In Socket Mode, your app still uses the very same Events API and interactive components of the Slack platform. The only difference is the communication protocol.<br>
 
 
 ### Setup Slack

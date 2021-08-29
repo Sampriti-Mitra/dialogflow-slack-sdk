@@ -68,7 +68,7 @@ Follow the steps to obtain the credentials and setup the [/functions/config/toke
    Copy and replace all token the values above in config/token.go file.
 5. On slack, go to the channel(s) you want the slack bot to have access to and invite the bot to the channel. Alternatively, you can type /invite on the channel
 
-There are two modes in slack to obtain information about events occurring in slack.
+#### There are two modes in slack to obtain information about events occurring in slack.
 1. Through Event subscription via The Events Api
 2. Through socket mode
 To switch to socket mode, go to socket mode tab on slack api and turn on socket mode. <br>
