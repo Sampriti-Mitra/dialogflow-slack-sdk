@@ -134,7 +134,7 @@ func (slackReq *SlackRequest) HandleEventsApiCallbackEvents(body []byte, isIncom
 			return nil, statusCode, slackEventCallbackErr
 		}
 
-		slackErr := slackReq.PostMsgToSlack(&slackReq.EventsAPIEvent.InnerEvent, nil, respChat)
+		slackErr := slackReq.PostMsgToSlack(respChat)
 
 		if slackErr != nil {
 			log.Print(slackErr)
@@ -148,7 +148,9 @@ func (slackReq *SlackRequest) HandleEventsApiCallbackEvents(body []byte, isIncom
 	return []byte("OK"), 200, nil
 }
 
-func (slackReq *SlackRequest) PostMsgToSlack(innerEvent *slackevents.EventsAPIInnerEvent, interactiveCallbackMessage *slack.InteractionCallback, responseMessages []*cx.ResponseMessage) error {
+func (slackReq *SlackRequest) PostMsgToSlack(responseMessages []*cx.ResponseMessage) error {
+
+	innerEvent := &slackReq.EventsAPIEvent.InnerEvent
 
 	var api = slack.New(config.BOT_TOKEN) // can be moved to SlackRequest
 
@@ -170,16 +172,6 @@ func (slackReq *SlackRequest) PostMsgToSlack(innerEvent *slackevents.EventsAPIIn
 			}
 		case *slackevents.MessageEvent:
 			api.PostMessage(ev.Channel, slack.MsgOptionText(responseStr, true), slack.MsgOptionBlocks(blocks...))
-		}
-	}
-
-	// if it is an interaction event, then post as separate message if DM
-	// if channel, post as a reply to the thread
-	if interactiveCallbackMessage != nil {
-		if interactiveCallbackMessage.Channel.IsIM {
-			api.PostMessage(interactiveCallbackMessage.Channel.ID, slack.MsgOptionText(responseStr, true), slack.MsgOptionBlocks(blocks...))
-		} else {
-			api.PostMessage(interactiveCallbackMessage.Channel.ID, slack.MsgOptionTS(interactiveCallbackMessage.Container.ThreadTs), slack.MsgOptionText(responseStr, true), slack.MsgOptionBlocks(blocks...))
 		}
 	}
 

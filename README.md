@@ -6,16 +6,19 @@ If you don't already have a Dialogflow agent, you may create one or add a [prebu
 Although this integration deployment may be set up on any other hosting platform, these instructions will use Google's App Engine/Cloud functions.
 
 ## Using the dialogflowcx integration-What to expect
-![link](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/images/demo-dm.gif).
+![link](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/images/demo-dm.gif)
 <br> <br>
 Through this sdk you should be able to integrate dialogflowcx agent with slack bot.
 You can do the following:
-1. Interact with an agent on bot home page via Events or SocketMode. 
-2. Interact with agent on channel by mentioning the bot name with @(bot-name)
-3. On channel, the bot will reply to bot mentions requests on the same thread.
-4. The conversation can be continued from channel to DM (bot Home).
-5. Display custom payloads from dialogflowcx via slack's block kit.
-6. Interact with block elements (like buttons) for interacting with agent.
+1. Interact with an agent via Events or SocketMode on slack. 
+2. Interact with an agent on the on bot home page.
+3. For the use cases that requires posting on channel so as other members get visiblity on the message. Interact with agent on channel by mentioning the bot name with @(bot-name). See [here](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/images/demo_channel.gif) for the demo on channel.
+4. On channel, the bot will reply to bot mentions requests on the same thread.
+5. The conversation can be continued from channel to DM (bot Home).
+6. Display custom payloads from dialogflowcx via slack's block kit.
+7. Interact with block elements (like buttons) for interacting with agent.
+8. Update the block element with the response from dialogflow agent.
+9. This sdk can be set up in any hosting platform, the README provides instructions for Google App Engine and Cloud Functions.
 
 ## GCP Setup
 
@@ -65,7 +68,7 @@ Follow the steps to obtain the credentials and setup the [/functions/config/toke
    Copy and replace all token the values above in config/token.go file.
 5. On slack, go to the channel(s) you want the slack bot to have access to and invite the bot to the channel. Alternatively, you can type /invite on the channel
 
-There are two modes in slack to obtain information about events occurring in slack.
+#### There are two modes in slack to obtain information about events occurring in slack.
 1. Through Event subscription via The Events Api
 2. Through socket mode
 To switch to socket mode, go to socket mode tab on slack api and turn on socket mode. <br>
