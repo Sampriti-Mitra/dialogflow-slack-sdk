@@ -12,7 +12,7 @@ Through this sdk you should be able to integrate dialogflowcx agent with slack b
 You can do the following:
 1. Interact with an agent via Events or SocketMode on slack. 
 2. Interact with an agent on the on bot home page.
-3. For the use cases that requires posting on channel so as other members get visiblity on the message. Interact with agent on channel by mentioning the bot name with @(bot-name). See [here](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/images/demo_channel.gif) for the demo on channel.
+3. For the use cases that requires posting on channel so as other members get visiblity on the message. Interact with agent on channel by mentioning the bot name with @(bot-name). See [here](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/images/demo-channel.gif) for the demo on channel.
 4. On channel, the bot will reply to bot mentions requests on the same thread.
 5. The conversation can be continued from channel to DM (bot Home).
 6. Display custom payloads from dialogflowcx via slack's block kit.
