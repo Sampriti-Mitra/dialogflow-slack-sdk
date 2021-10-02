@@ -3,12 +3,13 @@ package externals
 import (
 	"encoding/json"
 	"errors"
-	"github.com/slack-go/slack"
-	"github.com/slack-go/slack/slackevents"
-	"google.golang.org/genproto/googleapis/cloud/dialogflow/cx/v3"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/slackevents"
+	"google.golang.org/genproto/googleapis/cloud/dialogflow/cx/v3"
 	"weekend.side/dialogFlowSlackSdk/functions/config"
 	"weekend.side/dialogFlowSlackSdk/functions/utils"
 )
