@@ -6,7 +6,6 @@ If you don't already have a Dialogflow agent, you may create one or add a [prebu
 Although this integration deployment may be set up on any other hosting platform, these instructions will use Google's App Engine/Cloud functions.
 
 ## Using the dialogflowcx integration-What to expect
-![link](https://github.com/Sampriti-Mitra/dialogflow-slack-sdk/blob/main/images/demo-dm.gif)
 <br> <br>
 Through this sdk you should be able to integrate dialogflowcx agent with slack bot.
 You can do the following:
